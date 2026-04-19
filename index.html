@@ -477,16 +477,10 @@
 <!-- Firebase compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase.config.js"></script>
 <script>
   // ── Firebase init ────────────────────────────────────────────────────────
-  firebase.initializeApp({
-    apiKey: "AIzaSyDwa2WTmuCkb-INeP-JeFdO6dDay-E-hQQ",
-    authDomain: "swptools-3b401.firebaseapp.com",
-    projectId: "swptools-3b401",
-    storageBucket: "swptools-3b401.firebasestorage.app",
-    messagingSenderId: "753172874987",
-    appId: "1:753172874987:web:69cf047204117f055960ae"
-  });
+  firebase.initializeApp(FIREBASE_CONFIG);
   const db = firebase.firestore();
 
   // ── State ────────────────────────────────────────────────────────────────

@@ -5,7 +5,15 @@ const path = require('path');
 const { exec, spawn } = require('child_process');
 const { URL } = require('url');
 
-const FFMPEG = 'C:/ffmpeg/bin/ffmpeg.exe';
+const localConfig = (() => {
+  try { return require('./local.config.js'); }
+  catch { console.warn('Warning: local.config.js not found — copy local.config.example.js to get started.'); return { ffmpeg: '', brave: '', apps: {} }; }
+})();
+
+const FFMPEG      = localConfig.ffmpeg;
+const BRAVE       = localConfig.brave;
+const APP_WHITELIST = localConfig.apps || {};
+const BRAVE_PROFILE = path.join(__dirname, 'brave-app-profile');
 
 let ffmpegProcess = null;
 const FRAME_PATH = path.join(__dirname, 'capture-frame.jpg');
@@ -21,27 +29,6 @@ const MIME = {
   '.png':  'image/png',
   '.svg':  'image/svg+xml',
 };
-
-// ── App whitelist ─────────────────────────────────────────────────────────────
-// Keys must match the `appKey` field in equipment-data.js.
-// Add new apps here before they can be launched.
-const BRAVE = 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe';
-const BRAVE_PROFILE = path.join(__dirname, 'brave-app-profile');
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-const APP_WHITELIST = {
-  'atem-software-control': 'C:\\Program Files\\Blackmagic Design\\ATEM Software Control\\ATEM Software Control.exe',
-  'atem-setup':            'C:\\Program Files\\Blackmagic Design\\Blackmagic ATEM Setup\\Blackmagic ATEM Setup.exe',
-  'davinci-resolve':       'C:\\Program Files\\Blackmagic Design\\DaVinci Resolve\\Resolve.exe',
-  'hyperdeck-utility':     'C:\\Program Files\\Blackmagic Design\\HyperDeck Utility\\HyperDeck Utility.exe',
-  'videohub-control':      'C:\\Program Files\\Blackmagic Design\\Blackmagic Videohub\\Videohub Hardware Panel.exe',
-  'aja-control-room':      'C:\\Program Files\\AJA\\AJA Control Room\\AJA Control Room.exe',
-  'obs-studio':            'C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe',
-  'vnc-viewer':            'C:\\Program Files\\RealVNC\\VNC Viewer\\vncviewer.exe',
-  'putty':                 'C:\\Program Files\\PuTTY\\putty.exe',
-};
-// ─────────────────────────────────────────────────────────────────────────────
 
 function ping(ip) {
   return new Promise(resolve => {

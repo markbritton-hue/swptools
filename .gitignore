@@ -2,6 +2,8 @@ node_modules/
 .claude/
 SKILL-Session-Close.md
 CLAUDE.md
+local.config.js
+firebase.config.js
 brave-app-profile/
 capture-frame.jpg
 debug.log
