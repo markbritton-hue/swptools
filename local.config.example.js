@@ -18,7 +18,7 @@ module.exports = {
   // Optional: poll Bitfocus Companion's HTTP API for variables and button values.
   // Requires "Enable HTTP API" to be ON in Companion Settings > Surfaces.
   companion: {
-    host: '192.168.0.205',  // IP of the machine running Companion
+    host: '192.168.x.x',    // IP of the machine running Companion
     port: 8888,             // Companion HTTP API port (default 8888)
     poll: [
       // Variable example — key is what shows up in companionState

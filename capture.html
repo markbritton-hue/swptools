@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="Gearops-trans2.png" />
   <title>Capture — GearOps</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <link href="/lib/bootstrap.min.css" rel="stylesheet" />
+  <link href="/lib/fa.min.css" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; }
     html { height: 100%; }
@@ -94,6 +94,19 @@
     .eq-status-item .eq-name { color: #e2e8f0; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .eq-status-item.offline .eq-name { color: #f87171; }
     .eq-status-item .eq-ip { font-family: 'Courier New', monospace; font-size: 0.72rem; color: #8397a8; white-space: nowrap; }
+    .eq-status-item { cursor: pointer; }
+    .eq-expand { display: none; width: 100%; margin-top: 6px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.07); flex-direction: column; gap: 5px; }
+    .eq-status-item.expanded .eq-expand { display: flex; }
+    .eq-expand-row { display: flex; align-items: center; gap: 6px; font-size: 0.74rem; color: #94a3b8; }
+    .eq-expand-row i { width: 13px; color: #8397a8; font-size: 0.7rem; flex-shrink: 0; }
+    .eq-expand-actions { display: flex; gap: 6px; margin-top: 4px; }
+    .eq-expand-btn { flex: 1; border: none; border-radius: 6px; padding: 5px 8px; font-size: 0.73rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .eq-expand-btn.browse  { background: rgba(96,165,250,0.2);  color: #60a5fa; }
+    .eq-expand-btn.browse:hover  { background: rgba(96,165,250,0.3); }
+    .eq-expand-btn.popout  { background: rgba(167,139,250,0.2); color: #a78bfa; }
+    .eq-expand-btn.popout:hover  { background: rgba(167,139,250,0.3); }
+    .eq-chevron { margin-left: auto; font-size: 0.65rem; color: #8397a8; transition: transform 0.2s; flex-shrink: 0; }
+    .eq-status-item.expanded .eq-chevron { transform: rotate(180deg); }
 
     /* Capture fullscreen */
     #capture-panel.fullscreen {
@@ -166,6 +179,8 @@
     .btn-tab:hover    { background: rgba(100,116,139,0.3); }
     .btn-popout { flex: 0 0 36px; background: rgba(167,139,250,0.2); color: #a78bfa; }
     .btn-popout:hover { background: rgba(167,139,250,0.3); }
+    .btn-launch { flex: 1; border: none; border-radius: 8px; padding: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 36px; background: rgba(74,222,128,0.2); color: #4ade80; }
+    .btn-launch:hover { background: rgba(74,222,128,0.3); }
     .btn-frame:disabled, .btn-tab:disabled, .btn-popout:disabled { opacity: 0.4; cursor: not-allowed; }
     .ctrl-group { display: flex; flex-direction: column; gap: 3px; min-width: 160px; flex: 1; }
     .ctrl-group label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
@@ -203,7 +218,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 0;
+      width: 100%;
+      aspect-ratio: 16/9;
     }
     .preview-wrap.live { border-color: rgba(34,197,94,0.5); box-shadow: 0 0 20px rgba(34,197,94,0.1); }
 
@@ -292,7 +308,7 @@
           <i class="fa-solid fa-expand"></i> Fullscreen
         </button>
       </div>
-      <div class="preview-wrap" id="preview-wrap" style="flex:1;">
+      <div class="preview-wrap" id="preview-wrap">
         <div class="preview-placeholder" id="placeholder">
           <i class="fa-solid fa-camera-slash"></i>
           <p>Select a capture device and press Start Preview</p>
@@ -306,9 +322,8 @@
 
     <!-- Right: Embedded browser -->
     <div class="split-panel">
+      <div id="pinned-cards-wrap" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;"></div>
       <div class="panel-label"><i class="fa-solid fa-globe" style="color:#60a5fa;"></i> Browser</div>
-
-      <div id="wp-card-wrap"></div>
 
       <div style="display:flex;gap:6px;align-items:center;">
         <input id="browser-url" type="text" value="https://www.youtube.com/embed/8EMnwAVznvE?autoplay=1&mute=1&rel=0&modestbranding=1"
@@ -464,11 +479,14 @@
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.onload = () => {
+      // Snap container to video's actual aspect ratio — no black bars
+      if (img.naturalWidth && img.naturalHeight) {
+        document.getElementById('preview-wrap').style.aspectRatio = `${img.naturalWidth}/${img.naturalHeight}`;
+      }
       const cw = canvas.clientWidth;
       const ch = canvas.clientHeight;
       canvas.width = cw;
       canvas.height = ch;
-      // Letterbox: maintain source aspect ratio
       const srcRatio = img.naturalWidth / img.naturalHeight;
       const dstRatio = cw / ch;
       let dw, dh, dx, dy;
@@ -498,6 +516,7 @@
     canvas.style.display = 'none';
     document.getElementById('placeholder').style.display = 'block';
     document.getElementById('preview-wrap').classList.remove('live');
+    document.getElementById('preview-wrap').style.aspectRatio = '16/9';
     document.getElementById('live-badge').style.display = 'none';
     document.getElementById('btn-start').style.display = 'flex';
     document.getElementById('btn-stop').style.display = 'none';
@@ -547,82 +566,91 @@
     if (sel.value) startStream();
   });
 
-  // ── Web Presenter card ───────────────────────────────────────────────────
-  const WP_NAME = 'web presenter';
-  let wpDevice = null;
+  // ── Pinned device cards ───────────────────────────────────────────────────
   let wpCompanionState = {};
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-  function renderWpCard() {
-    const wrap = document.getElementById('wp-card-wrap');
-    if (!wpDevice) { wrap.innerHTML = ''; return; }
-    const d = wpDevice;
+  function buildDeviceCard(d) {
     const hasIp = !!d.ip;
     const url = hasIp ? 'http://' + d.ip : '';
-
     const companionHtml = (d.companionVars || []).map(v => {
       const raw = wpCompanionState[v.key] ?? '';
       const val = v.key === 'stream_bitrate' && raw !== '' ? formatBitrate(raw) : raw;
       if (v.display === 'badge') {
-        const cls = raw === 'Streaming' ? 'streaming' : raw === 'Connecting' ? 'connecting' : 'idle';
-        return `<span class="companion-badge ${cls}" id="wp-cbadge-${v.key}">${esc(val || v.label)}</span>`;
+        const cls = (raw === 'Streaming' || raw === 'Recording' || raw === 'Record') ? 'streaming' : raw === 'Connecting' ? 'connecting' : 'idle';
+        return `<span class="companion-badge ${cls}" id="cr-cbadge-${d.id}-${v.key}">${esc(val || v.label)}</span>`;
       }
-      return `<div class="companion-text" id="wp-cbadge-${v.key}" ${val ? '' : 'style="display:none"'}><span class="companion-text-label">${esc(v.label)}:</span> <span class="companion-text-val">${esc(val)}</span></div>`;
+      return `<div class="companion-text" id="cr-cbadge-${d.id}-${v.key}" ${val ? '' : 'style="display:none"'}><span class="companion-text-label">${esc(v.label)}:</span> <span class="companion-text-val">${esc(val)}</span></div>`;
     }).join('');
-
-    wrap.innerHTML = `
+    return `
       <div class="eq-card cat-${d.category}">
         <div class="card-header-row">
           <div class="card-icon"><i class="fa-solid ${d.icon||'fa-server'}"></i></div>
-          <div style="flex:1;min-width:0;">
-            <div class="card-title">${esc(d.name)}</div>
-          </div>
-          <span class="cat-badge">Encoders</span>
+          <div style="flex:1;min-width:0;"><div class="card-title">${esc(d.name)}</div></div>
+          <span class="cat-badge" style="font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:600;text-transform:uppercase;">${esc(d.category)}</span>
         </div>
-        <div class="card-ip">
-          ${hasIp ? esc(d.ip) : '<span class="no-ip">No IP assigned</span>'}
-        </div>
-        ${(d.user || d.pass) ? `
-        <div class="card-meta">
+        <div class="card-ip">${hasIp ? esc(d.ip) : '<span class="no-ip">No IP assigned</span>'}</div>
+        ${(d.user || d.pass) ? `<div class="card-meta">
           ${d.user ? `<span><i class="fa-solid fa-user" style="width:12px;"></i>${esc(d.user)}</span>` : ''}
           ${d.pass ? `<span><i class="fa-solid fa-key" style="width:12px;"></i>${esc(d.pass)}</span>` : ''}
         </div>` : ''}
         ${d.notes ? `<div class="card-notes">${esc(d.notes)}</div>` : ''}
         ${companionHtml}
+        ${(d.appKey || d.appPath || d.browserEnabled) ? `
         <div class="card-actions">
-          <button class="btn-frame" onclick="window.open('${url}','_blank')" ${!hasIp ? 'disabled' : ''}>
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> Browse
-          </button>
-          <button class="btn-popout" onclick="window.open('${url}','_blank','width=1280,height=720')" ${!hasIp ? 'disabled' : ''} title="Open in app window">
-            <i class="fa-solid fa-window-restore"></i>
-          </button>
-        </div>
+          ${(d.appKey || d.appPath) ? `
+          <button class="btn-launch" onclick="launchPinnedApp('${d.id}')"><i class="fa-solid fa-rocket"></i> Launch</button>` : `
+          <button class="btn-frame" onclick="window.open('${url}','_blank')" ${!hasIp ? 'disabled' : ''}><i class="fa-solid fa-arrow-up-right-from-square"></i> Browse</button>
+          <button class="btn-popout" onclick="window.open('${url}','_blank','width=1280,height=720')" ${!hasIp ? 'disabled' : ''} title="Open in app window"><i class="fa-solid fa-window-restore"></i></button>`}
+        </div>` : ''}
       </div>`;
   }
 
-  function updateWpBadges() {
-    if (!wpDevice) return;
-    (wpDevice.companionVars || []).forEach(v => {
-      const el = document.getElementById(`wp-cbadge-${v.key}`);
-      if (!el) return;
-      const raw = wpCompanionState[v.key] ?? '';
-      const val = v.key === 'stream_bitrate' && raw !== '' ? formatBitrate(raw) : raw;
-      if (v.display === 'badge') {
-        el.className = 'companion-badge ' + (raw === 'Streaming' ? 'streaming' : raw === 'Connecting' ? 'connecting' : 'idle');
-        el.textContent = val || v.label;
-      } else {
-        const valEl = el.querySelector('.companion-text-val');
-        if (valEl) valEl.textContent = val;
-        el.style.display = val ? '' : 'none';
-      }
+  function renderPinnedCards() {
+    const wrap = document.getElementById('pinned-cards-wrap');
+    const pinned = allEquipment.filter(d => d.showInControlRoom);
+    wrap.innerHTML = pinned.map(d => buildDeviceCard(d)).join('');
+  }
+
+  function launchPinnedApp(id) {
+    const d = allEquipment.find(e => e.id === id);
+    if (!d) return;
+    const url = d.appPath
+      ? `${SERVER}/launch-path?path=${encodeURIComponent(d.appPath)}`
+      : `${SERVER}/launch?app=${encodeURIComponent(d.appKey)}`;
+    fetch(url).catch(() => alert('Server not reachable. Is start.bat running?'));
+  }
+
+  function updateCompanionEl(el, v, raw) {
+    if (!el) return;
+    const val = v.key === 'stream_bitrate' && raw !== '' ? formatBitrate(raw) : raw;
+    if (v.display === 'badge') {
+      el.className = 'companion-badge ' + ((raw === 'Streaming' || raw === 'Recording' || raw === 'Record') ? 'streaming' : raw === 'Connecting' ? 'connecting' : 'idle');
+      el.textContent = val || v.label;
+    } else {
+      const valEl = el.querySelector('.companion-text-val');
+      if (valEl) valEl.textContent = val;
+      el.style.display = val ? '' : 'none';
+    }
+  }
+
+  function updatePinnedBadges() {
+    allEquipment.forEach(d => {
+      (d.companionVars || []).forEach(v => {
+        const raw = wpCompanionState[v.key] ?? '';
+        // Update pinned card badges (cr-cbadge-)
+        updateCompanionEl(document.getElementById(`cr-cbadge-${d.id}-${v.key}`), v, raw);
+        // Update status list badges (eq-cbadge-)
+        updateCompanionEl(document.getElementById(`eq-cbadge-${d.id}-${v.key}`), v, raw);
+      });
     });
   }
 
   function pollWpCompanion() {
     fetch(SERVER + '/companion')
       .then(r => r.json())
-      .then(data => { wpCompanionState = data; updateWpBadges(); renderEqStatus(); })
+      .then(data => { wpCompanionState = data; updatePinnedBadges(); renderEqStatus(); })
       .catch(() => {});
   }
 
@@ -650,6 +678,7 @@
 
   function renderEqStatus() {
     const list = document.getElementById('eq-status-list');
+    const expanded = new Set([...list.querySelectorAll('.eq-status-item.expanded')].map(el => el.dataset.id));
     const monitored = allEquipment.filter(d => d.ip && d.monitor && d.category !== 'h2r');
     const visible = (showAllDevices ? monitored : monitored.filter(d => seenDevices.has(d.id)))
       .sort((a, b) => {
@@ -678,17 +707,45 @@
       const dotCls  = isOnline ? 'online' : 'offline';
       const itemCls = isOnline ? '' : ' offline' + (shouldBlink ? '' : ' no-blink');
 
-      const hasCompanion = (d.companionVars || []).length > 0;
-      const streamStateVar = hasCompanion && d.companionVars.find(v => v.key === 'stream_state');
-      const streamStateVal = streamStateVar ? (wpCompanionState['stream_state'] ?? '') : null;
-      const badgeCls = streamStateVal === 'Streaming' ? 'streaming' : streamStateVal === 'Connecting' ? 'connecting' : 'idle';
+      const companionInline = (d.companionVars || []).map(v => {
+        const raw = wpCompanionState[v.key] ?? '';
+        const val = v.key === 'stream_bitrate' && raw !== '' ? formatBitrate(raw) : raw;
+        if (v.display === 'badge') {
+          const cls = (raw === 'Streaming' || raw === 'Recording' || raw === 'Record') ? 'streaming' : raw === 'Connecting' ? 'connecting' : 'idle';
+          return `<span class="companion-badge ${cls}" id="eq-cbadge-${d.id}-${v.key}" style="font-size:0.6rem;padding:2px 6px;">${esc(val || v.label)}</span>`;
+        }
+        return `<div class="companion-text" id="eq-cbadge-${d.id}-${v.key}" style="font-size:0.72rem;${val ? '' : 'display:none'}"><span class="companion-text-label">${esc(v.label)}:</span> <span class="companion-text-val">${esc(val)}</span></div>`;
+      }).join('');
 
-      return `<div class="eq-status-item${itemCls}" style="flex-wrap:wrap;gap:6px;">
+      const url = d.ip ? 'http://' + d.ip : '';
+      const expandRows = [
+        d.ip    ? `<div class="eq-expand-row"><i class="fa-solid fa-network-wired"></i><span style="font-family:monospace;">${esc(d.ip)}</span></div>` : '',
+        d.user  ? `<div class="eq-expand-row"><i class="fa-solid fa-user"></i>${esc(d.user)}</div>` : '',
+        d.pass  ? `<div class="eq-expand-row"><i class="fa-solid fa-key"></i>${esc(d.pass)}</div>` : '',
+        d.notes ? `<div class="eq-expand-row"><i class="fa-solid fa-note-sticky"></i>${esc(d.notes)}</div>` : '',
+      ].filter(Boolean).join('');
+
+      const expandActions = d.browserEnabled && url ? `
+        <div class="eq-expand-actions">
+          <button class="eq-expand-btn browse" onclick="event.stopPropagation();window.open('${url}','_blank')"><i class="fa-solid fa-arrow-up-right-from-square"></i> Browse</button>
+          <button class="eq-expand-btn popout" onclick="event.stopPropagation();fetch('${SERVER}/launch-browser?url='+encodeURIComponent('${url}')).catch(()=>window.open('${url}','_blank','width=1280,height=720'))" title="Open in app window"><i class="fa-solid fa-window-restore"></i> Popout</button>
+        </div>` : '';
+
+      return `<div class="eq-status-item${itemCls}" data-id="${d.id}" style="flex-wrap:wrap;gap:6px;" onclick="this.classList.toggle('expanded')">
         <span class="eq-dot ${dotCls}"></span>
-        <span class="eq-name">${esc(d.name)}</span>
-        ${streamStateVal !== null ? `<span class="companion-badge ${badgeCls}" id="eq-status-badge-${d.id}" style="font-size:0.6rem;padding:2px 6px;">${streamStateVal || 'Idle'}</span>` : ''}
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+          <span class="eq-name">${esc(d.name)}</span>
+          ${companionInline ? `<div style="display:flex;flex-wrap:wrap;gap:4px;">${companionInline}</div>` : ''}
+        </div>
+        <i class="fa-solid fa-chevron-down eq-chevron"></i>
+        <div class="eq-expand">${expandRows}${expandActions}</div>
       </div>`;
     }).join('');
+
+    expanded.forEach(id => {
+      const el = list.querySelector(`[data-id="${id}"]`);
+      if (el) el.classList.add('expanded');
+    });
   }
 
   function pingEqDevice(d) {
@@ -711,15 +768,15 @@
     .then(r => r.json())
     .then(devices => {
       allEquipment = devices.sort((a, b) => a.name.localeCompare(b.name));
-      wpDevice = allEquipment.find(d => (d.name || '').toLowerCase().includes(WP_NAME)) || null;
-      renderWpCard();
-      if (wpDevice && (wpDevice.companionVars || []).length) {
+      renderPinnedCards();
+      const hasPinnedCompanion = allEquipment.some(d => d.showInControlRoom && (d.companionVars || []).length);
+      if (hasPinnedCompanion) {
         pollWpCompanion();
-        setInterval(pollWpCompanion, 10000);
+        setInterval(pollWpCompanion, +(localStorage.getItem('gearops_refresh_interval') || 10000));
       }
       renderEqStatus();
       pingAllEq();
-      setInterval(pingAllEq, 5000);
+      setInterval(pingAllEq, +(localStorage.getItem('gearops_refresh_interval') || 10000));
     })
     .catch(e => console.error('Failed to load devices:', e));
 </script>

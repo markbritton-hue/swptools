@@ -99,7 +99,10 @@ function launchApp(appKey) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  if (/^https?:\/\/(localhost|127\.0\.0\.1|(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)\d+\.\d+)(:\d+)?$/.test(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
 
   // ── Ping API ──────────────────────────────────────────────────────────────
   if (url.pathname === '/ping') {
@@ -120,6 +123,12 @@ const server = http.createServer(async (req, res) => {
     if (!/\.(exe|lnk)$/i.test(appPath)) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({ launched: false, error: 'Only .exe and .lnk files are allowed.' }));
+    }
+    // Only allow paths stored in devices.json — reject arbitrary paths
+    const knownPaths = readDevices().map(d => d.appPath).filter(Boolean);
+    if (!knownPaths.includes(appPath)) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ launched: false, error: 'Path not in device list.' }));
     }
     if (!fs.existsSync(appPath)) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -236,7 +245,15 @@ const server = http.createServer(async (req, res) => {
     req.on('end', () => {
       try {
         const data = JSON.parse(body);
-        Object.assign(companionState, data);
+        // Only accept flat string key/value pairs — no nested objects or arrays
+        if (typeof data !== 'object' || Array.isArray(data)) throw new Error('Expected a flat JSON object');
+        const sanitized = {};
+        for (const [k, v] of Object.entries(data)) {
+          if (typeof k === 'string' && k.length <= 64 && (typeof v === 'string' || typeof v === 'number')) {
+            sanitized[k] = String(v).slice(0, 512);
+          }
+        }
+        Object.assign(companionState, sanitized);
         console.log('Companion push:', data);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
@@ -294,6 +311,11 @@ const server = http.createServer(async (req, res) => {
     let targetUrl;
     try { targetUrl = new URL(target); } catch {
       res.writeHead(400); return res.end('Invalid URL');
+    }
+    // Only proxy to IPs that are registered in devices.json
+    const knownHosts = readDevices().map(d => d.ip).filter(Boolean).map(ip => ip.split(':')[0].split('/')[0]);
+    if (!knownHosts.includes(targetUrl.hostname)) {
+      res.writeHead(403); return res.end('Proxy target not in device list.');
     }
 
     function doFetch(fetchUrl, redirectsLeft, respond) {
