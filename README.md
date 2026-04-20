@@ -1,27 +1,27 @@
 # GearOps — Equipment Dashboard
 
-A local network equipment dashboard for StreamWave production gear. Manages cameras, encoders, ATEMs, HyperDecks, and more.
+A local network dashboard for managing production gear — cameras, encoders, ATEMs, HyperDecks, computers, and more. Runs entirely on your local machine; no cloud account required.
+
+> **LAN-only tool.** Do not expose port 8080 to the internet.
 
 ---
 
 ## Requirements
 
-| Software | Download |
-|---|---|
-| **Node.js** | https://nodejs.org |
-| **Git** | https://git-scm.com |
-| **FFmpeg** *(capture preview only)* | https://www.gyan.dev/ffmpeg/builds/ |
-| **Brave Browser** *(popout feature only)* | https://brave.com |
-
-**FFmpeg:** Download the full build, extract it, and place `ffmpeg.exe` at `C:\ffmpeg\bin\ffmpeg.exe`.
+| Software | Notes |
+|----------|-------|
+| [Node.js](https://nodejs.org) | Required |
+| [Git](https://git-scm.com) | Required |
+| [FFmpeg](https://www.gyan.dev/ffmpeg/builds/) | Capture preview only — extract and place `ffmpeg.exe` at `C:\ffmpeg\bin\ffmpeg.exe` |
+| [Brave Browser](https://brave.com) | Popout feature only |
 
 ---
 
 ## Installation
 
 ```bash
-git clone https://github.com/markbritton-hue/swptools.git
-cd swptools
+git clone https://github.com/markbritton-hue/gearops.git
+cd gearops
 npm install
 ```
 
@@ -29,92 +29,77 @@ npm install
 
 ## Configuration
 
-Copy the example config and fill in your values:
 ```bash
 copy local.config.example.js local.config.js
 ```
 
-Edit `local.config.js` with paths to your local apps (OBS, ATEM Software Control, etc.), Brave browser path, and optional Companion settings.
-
-No Firebase or cloud account needed — all equipment data is stored locally in `devices.json`.
+Edit `local.config.js` and fill in:
+- Paths to local apps you want to launch (OBS, ATEM Software Control, HyperDeck Utility, etc.)
+- Brave browser path (for the popout feature)
+- Companion host/port (optional — for live variable badges)
 
 ---
 
-## Running the app
+## Running
 
-Double-click **`start.bat`** — or from a terminal:
+Double-click **`start.bat`** or from a terminal:
+
 ```bash
 node server.js
 ```
 
-Then open: `http://localhost:8080`
+Then open: **http://localhost:8080**
 
 ---
 
 ## First-time setup
 
-On first run `devices.json` is empty. You have two options:
+On first run `devices.json` is empty. Open **http://localhost:8080/setup.html** and choose:
 
-### Option A — Import from Google Sheets
-1. Prepare a Google Sheet with your equipment list (columns: Name, IP Address, Category, Username, Password, Notes, Monitor)
-2. Share the sheet: **File → Share → Anyone with the link can view**
-3. Open `http://localhost:8080/setup.html`
-4. Paste the sheet URL and click **Load Sheet**
-5. Map your columns to GearOps fields and click **Import Devices**
+**Import from Google Sheets** — prepare a sheet with your equipment list, share it publicly (view only), paste the URL, map your columns, and import.
 
-### Option B — Add devices manually
-1. Open the main dashboard at `http://localhost:8080`
-2. Click the **Edit** button (top right)
-3. Click **Add Device** and fill in the details
+**Add manually** — go to the main dashboard, click **Edit**, then **Add Device**.
 
 ---
 
-## Using the app
+## Pages
 
-### Equipment dashboard (`/`)
-- **Cards** show all your gear with IP, status, credentials, and action buttons
-- **Filter bar** lets you filter by category (Computing, Cameras, ATEMs, etc.)
-- **Search** finds devices by name or IP
-- **Sort** by name, category, status, or IP
-- **Online/Offline badges** appear on devices with monitoring enabled (pinged every 30s)
-- **Edit mode** — click **Edit** to add, edit, or delete devices
-- **Browse / Popout** buttons open a device's web UI in a new tab or app window
-- **Launch** buttons start local applications directly
+### Dashboard — `/`
+- Equipment cards with IP, status badges, credentials, and action buttons
+- Filter by category, search by name or IP, sort by name / category / status / IP
+- Online/offline monitoring — devices are pinged on a configurable interval
+- **Browse** opens a device's web UI in a new tab
+- **Popout** opens it in a Brave app window (bypasses iframe restrictions)
+- **Launch** starts a local application directly
+- **Edit mode** — add, edit, or delete device cards
 
-### Control Room (`/capture.html`)
-- **Capture preview** — select a capture card and click Start Preview for a live feed
-- **Browser panel** — embedded browser for YouTube streams or local device UIs
-- **Equipment status** — live online/offline status for all monitored devices
-- **Clock** — large timecode display for production timing
+### Control Room — `/capture.html`
+- Live capture preview via FFmpeg (select your capture card)
+- Embedded browser panel for streams or device UIs
+- Equipment status sidebar with expandable device details
+- Production clock / timecode display
 
-### Setup / Import (`/setup.html`)
-- Import equipment from a Google Sheet
-- Accessible any time to re-import or add bulk devices
-
----
-
-## Accessing from other devices (iPad, phone, etc.)
-
-Run `ipconfig` in a terminal and find your **IPv4 Address** (e.g. `192.168.0.121`).
-
-On any device on the same network: `http://192.168.0.121:8080`
-
-### Add to iPad home screen
-1. Open Safari and go to the app URL
-2. Tap **Share → Add to Home Screen**
-3. GearOps will appear with its icon
+### Setup — `/setup.html`
+- Landing page for manual setup or Google Sheets import
+- Re-run any time to bulk-add or re-import devices
 
 ---
 
-## Equipment data
+## Accessing from other devices
 
-All equipment is stored in `devices.json`. This file is gitignored — back it up or copy it when moving to a new machine.
+Find your machine's IP with `ipconfig` (look for IPv4 Address, e.g. `192.168.0.121`).
+
+Any device on the same network can open: **http://192.168.0.121:8080**
+
+**Add to iPad home screen:** open in Safari → Share → Add to Home Screen.
 
 ---
 
-## Moving to a new computer
+## Moving to a new machine
 
-1. Install requirements
+1. Install requirements above
 2. Clone the repo and run `npm install`
 3. Copy `local.config.js` and `devices.json` from the old machine
 4. Run `start.bat`
+
+`devices.json` is gitignored — back it up separately.
