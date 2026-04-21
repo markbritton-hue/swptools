@@ -553,7 +553,12 @@
         <small style="color:#8397a8;font-size:0.74rem;margin-top:3px;">The label of this device's connection in Bitfocus Companion</small>
       </div>
       <div class="form-row" style="grid-column:1/-1">
-        <label>Companion Buttons</label>
+        <label style="display:flex;align-items:center;gap:10px;">
+          Companion Buttons
+          <button type="button" onclick="openModal('help-buttons-modal')" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:6px;padding:3px 10px;font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+            <i class="fa-solid fa-circle-question"></i> Help
+          </button>
+        </label>
         <small style="color:#8397a8;font-size:0.74rem;margin-bottom:8px;display:block;">One per line. Format: <code style="color:#94a3b8">Label | page | row | col</code><br>
         Example: <code style="color:#94a3b8">On Air | 1 | 0 | 6</code></small>
         <textarea id="f-companion-buttons" placeholder="On Air | 1 | 0 | 6" style="font-family:monospace;font-size:0.8rem;min-height:60px;"></textarea>
@@ -641,6 +646,39 @@ platform | Platform | text</pre>
 
     <div class="modal-actions" style="margin-top:20px;">
       <button class="btn-cancel" onclick="closeModal('help-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANION BUTTONS HELP MODAL -->
+<div class="modal-overlay" id="help-buttons-modal" onclick="handleOverlayClick(event,'help-buttons-modal')">
+  <div class="modal-box" style="max-width:520px;max-height:85vh;overflow-y:auto;">
+    <h2><i class="fa-solid fa-circle-question" style="color:#f87171;margin-right:8px;"></i>Companion Button Setup</h2>
+
+    <p style="color:#94a3b8;font-size:0.85rem;margin:12px 0 6px;">Companion buttons let you trigger any button on your Companion layout directly from an equipment card — shown as a red button.</p>
+
+    <h3 style="color:#60a5fa;font-size:0.9rem;margin:16px 0 8px;border-bottom:1px solid rgba(96,165,250,0.2);padding-bottom:6px;">Step 1 — Find your button location in Companion</h3>
+    <p style="color:#94a3b8;font-size:0.83rem;margin:0 0 8px;">In Companion, hover over the button you want to trigger. The location is shown as <strong style="color:#e2e8f0;">Page / Row / Column</strong> — for example, Page 1, Row 0, Column 6.</p>
+
+    <h3 style="color:#60a5fa;font-size:0.9rem;margin:16px 0 8px;border-bottom:1px solid rgba(96,165,250,0.2);padding-bottom:6px;">Step 2 — Add it to the equipment card</h3>
+    <p style="color:#94a3b8;font-size:0.83rem;margin:0 0 8px;">In the <strong style="color:#e2e8f0;">Companion Buttons</strong> field, add one button per line in this format:</p>
+    <pre style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:10px;font-size:0.78rem;color:#a5f3fc;white-space:pre-wrap;">Label | page | row | col</pre>
+    <p style="color:#94a3b8;font-size:0.83rem;margin:8px 0 0;">Example — a Web Presenter On Air button at page 1, row 0, col 6:</p>
+    <pre style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:10px;font-size:0.78rem;color:#a5f3fc;">On Air | 1 | 0 | 6</pre>
+    <p style="color:#94a3b8;font-size:0.83rem;margin:8px 0 0;">You can add multiple buttons, one per line:</p>
+    <pre style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:10px;font-size:0.78rem;color:#a5f3fc;">On Air | 1 | 0 | 6
+Record | 1 | 0 | 7
+Cut | 1 | 1 | 0</pre>
+
+    <h3 style="color:#60a5fa;font-size:0.9rem;margin:16px 0 8px;border-bottom:1px solid rgba(96,165,250,0.2);padding-bottom:6px;">Requirements</h3>
+    <ul style="color:#94a3b8;font-size:0.83rem;padding-left:1.3em;line-height:1.9;margin:0;">
+      <li>Companion must be running and reachable on your network</li>
+      <li>Companion IP must be set in <strong style="color:#e2e8f0;">Setup → App Settings → Companion IP</strong></li>
+      <li>Companion HTTP API must be enabled: <strong style="color:#e2e8f0;">Settings → Surfaces → Enable HTTP API</strong></li>
+    </ul>
+
+    <div class="modal-actions" style="margin-top:20px;">
+      <button class="btn-cancel" onclick="closeModal('help-buttons-modal')">Close</button>
     </div>
   </div>
 </div>
