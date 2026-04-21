@@ -195,7 +195,7 @@ const server = http.createServer(async (req, res) => {
     if (ffmpegProcess) { try { ffmpegProcess.kill(); } catch(e) {} ffmpegProcess = null; }
 
     // Launch FFmpeg in its own console via `start` — DirectShow requires a real Windows session
-    const cmd = `start "FFmpeg Capture" "${FFMPEG}" -f dshow -i "video=${device}" -vf scale=1280:-1 -q:v 3 -update 1 -r 15 -y "${FRAME_PATH}"`;
+    const cmd = `start "FFmpeg Capture" "${FFMPEG}" -rtbufsize 512M -f dshow -i "video=${device}" -vf scale=1280:-1 -q:v 3 -update 1 -r 15 -y "${FRAME_PATH}"`;
     const proc = exec(cmd, (err) => {
       if (err) console.error('FFmpeg launch error:', err.message);
     });
