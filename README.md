@@ -10,7 +10,7 @@ A local network dashboard for managing production gear — cameras, encoders, AT
 
 | Software | Notes |
 |----------|-------|
-| [Node.js](https://nodejs.org) | Required |
+| [Node.js](https://nodejs.org) | Required — download the LTS installer from nodejs.org and run it. npm is included automatically. |
 | [Git](https://git-scm.com) | Required |
 | [FFmpeg](https://www.gyan.dev/ffmpeg/builds/) | Capture preview only — extract and place `ffmpeg.exe` at `C:\ffmpeg\bin\ffmpeg.exe` |
 | [Brave Browser](https://brave.com) | Popout feature only |
