@@ -128,7 +128,7 @@
     .controls-card { background: rgba(30,41,59,0.8); border: 1px solid rgba(96,165,250,0.15); border-radius: 10px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
 
     /* Equipment card styles (mirrored from main page) */
-    .eq-card { background: rgba(30,41,59,0.8); border: 1px solid rgba(96,165,250,0.15); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s, filter 0.3s; position: relative; margin-bottom: 8px; }
+    .eq-card { background: rgba(30,41,59,0.8); border: 1px solid rgba(96,165,250,0.15); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s, filter 0.3s; position: relative; }
     .eq-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
     .eq-card.online  { background: rgba(36,52,74,0.95); border-color: rgba(96,165,250,0.35); box-shadow: 0 0 18px rgba(96,165,250,0.08), 0 4px 16px rgba(0,0,0,0.3); filter: brightness(1.12); }
     .eq-card.offline { opacity: 0.8; filter: grayscale(20%) brightness(0.92); }
@@ -344,7 +344,7 @@
 
     <!-- Right: Embedded browser -->
     <div class="split-panel">
-      <div id="pinned-cards-wrap" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;"></div>
+      <div id="pinned-cards-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow-y:auto;align-content:start;"></div>
       <div class="panel-label"><i class="fa-solid fa-globe" style="color:#60a5fa;"></i> Browser</div>
 
       <div style="display:flex;gap:6px;align-items:center;">
