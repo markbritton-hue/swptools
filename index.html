@@ -364,6 +364,9 @@
 <nav class="top-nav">
   <img src="Gearops-trans2.png" alt="GearOps" style="height:56px;width:auto;" />
   <span class="subtitle" id="device-count"></span>
+  <span id="nav-loading" style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:#60a5fa;font-weight:600;">
+    <i class="fa-solid fa-satellite-dish" style="animation:spin 1.5s linear infinite;"></i> Checking equipment...
+  </span>
   <a href="/capture.html" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:6px 14px;font-size:0.8rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;">
     <img src="control-room.svg" alt="" style="height:18px;width:auto;filter:invert(65%) sepia(80%) saturate(600%) hue-rotate(340deg) brightness(1.1);" /> Control Room
   </a>
@@ -403,12 +406,6 @@
 </div>
 </div>
 
-<!-- LOADING STATE -->
-<div id="loading-state" style="text-align:center;padding:80px 20px;color:#8397a8;">
-  <i class="fa-solid fa-satellite-dish" style="font-size:2.5rem;margin-bottom:16px;color:#60a5fa;animation:spin 1.5s linear infinite;display:block;"></i>
-  <p style="font-size:1rem;font-weight:600;color:#e2e8f0;margin:0 0 6px;">Checking equipment...</p>
-  <p style="font-size:0.82rem;margin:0;">Connecting to all devices on the network</p>
-</div>
 <style>
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
@@ -774,7 +771,7 @@ platform | Platform | text</pre>
       buildFilterBar();
       render();
       if (isFirstLoad) {
-        pingAll(() => { document.getElementById('loading-state').style.display = 'none'; });
+        pingAll(() => { document.getElementById('nav-loading').style.display = 'none'; });
       } else {
         pingAll();
       }
