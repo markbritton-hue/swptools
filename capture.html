@@ -120,10 +120,12 @@
     #capture-panel.fullscreen .preview-wrap { border-radius: 0; }
 
     @media (max-width: 900px) {
-      .split-layout { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
-      .split-panel { height: 50vw; min-height: 280px; }
+      body { height: auto; overflow: auto; }
+      .page { overflow: visible; }
+      .split-layout { grid-template-columns: 1fr; height: auto; overflow: visible; }
+      .split-panel { height: 50vw; min-height: 240px; }
       .split-panel:last-child { height: auto; min-height: 0; }
-      .eq-status-list { overflow-y: visible; }
+      .eq-status-list { overflow-y: visible; flex: none; }
     }
 
     /* Controls */
