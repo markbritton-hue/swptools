@@ -32,7 +32,7 @@
       flex: 1;
       min-height: 0;
     }
-    #capture-panel   { grid-column: 1; grid-row: 1; }
+    #capture-panel   { grid-column: 1; grid-row: 1; overflow: visible; }
     .panel-equipment { grid-column: 2; grid-row: 1; }
     .split-panel {
       display: flex;
@@ -348,7 +348,7 @@
           <span class="dot"></span> LIVE
         </div>
       </div>
-      <div id="pinned-cards-wrap" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;overflow-y:auto;align-content:start;"></div>
+      <div id="pinned-cards-wrap" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;overflow:visible;align-content:start;"></div>
     </div>
 
     <!-- Right: Equipment status -->
